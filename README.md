@@ -17,7 +17,7 @@ on 18.06.1979
 thought how about using all <br>
 6 digits of the KIM-1 display..."
 
-#Instructions: 
+## Instructions: 
 Load both papertapes and
 Start at location $0200<br>
 Now choose Game A or B
