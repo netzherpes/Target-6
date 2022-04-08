@@ -27,6 +27,6 @@ Game B wins if all stripes are <br>
 lid.
 
 If you shoot (Key 3) you shoot at <br>
-Digit 4  <br>
-`     |1|2|3|4| |5|6|`<br>
-`            ^`
+Digit 4  <br><pre>
+     |1|2|3|4| |5|6|<br>
+            ^</pre>
