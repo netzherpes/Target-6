@@ -28,5 +28,5 @@ lid.
 
 If you shoot (Key 3) you shoot at <br>
 Digit 4  <br>
-     |1|2|3|4| |5|6|<br>
-&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp^
+`     |1|2|3|4| |5|6|<br>`
+`            ^`
