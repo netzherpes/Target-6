@@ -17,8 +17,9 @@ on 18.06.1979
 thought how about using all <br>
 6 digits of the KIM-1 display..."
 
-Instructions: <br>
-Start at $0200<br>
+#Instructions: 
+Load both papertapes and
+Start at location $0200<br>
 Now choose Game A or B
 
 Game A wins if all stripes have <br>
@@ -26,8 +27,8 @@ been shot away,<br>
 Game B wins if all stripes are <br>
 lid.
 
-If you shoot (Key 3) you shoot at <br>
-Digit 4  <br>
+If you fire with Key 3 you shoot<br>
+at Digit 4  <br>
 <pre>
      |1|2|3|4| |5|6|<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^
