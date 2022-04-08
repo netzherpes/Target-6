@@ -1,8 +1,6 @@
 # Target-6
-a KIM-1 shooter
-The 6 column Version of Fer Webers Target1 Game (https://github.com/netzherpes/Target1-for-KIM-1)
 
-Target 6-column Version
+The 6 column Version of Fer Webers Target1 Shooter Game (https://github.com/netzherpes/Target1-for-KIM-1)
 
 Author <br>
 Fer Weber<br>
