@@ -1,0 +1,423 @@
+ca65 V2.19 - Git 4f87c7c
+Main file   : .\Target6column.S
+Current file: .\Target6column.S
+
+000000r 1               ;***************************************
+000000r 1               ;* Target 6-column Version             *
+000000r 1               ;*                                     *
+000000r 1               ;* Author                              *
+000000r 1               ;* Fer Weber                           *
+000000r 1               ;* Gebr. Wienerstr. 139                *
+000000r 1               ;* 5913 XS Venlo                       *
+000000r 1               ;* Holland                             *
+000000r 1               ;*                                     *
+000000r 1               ;* published in KimKenner 8            *
+000000r 1               ;* on 18.06.1979                       *
+000000r 1               ;*                                     *
+000000r 1               ;* "After Target-1 war running, I      *
+000000r 1               ;* thought how about using all         *
+000000r 1               ;* 6 digits of the KIM-1 display..."   *
+000000r 1               ;*                                     *
+000000r 1               ;* Instructions:                       *
+000000r 1               ;* Start at $0200                      *
+000000r 1               ;* Now choose Game A or B              *
+000000r 1               ;*                                     *
+000000r 1               ;* Game A wins if all stripes have     *
+000000r 1               ;* been shot away,                     *
+000000r 1               ;* Game B wins if all stripes are      *
+000000r 1               ;* lid.                                *
+000000r 1               ;*                                     *
+000000r 1               ;* If you shoot (Key 3) you shoot at   *
+000000r 1               ;* Digit 4                             *
+000000r 1               ;*      |1|2|3|4| |5|6|                *
+000000r 1               ;*             ^                       *
+000000r 1               ;***************************************
+000000r 1               
+000000r 1               DIGITPT  =       $00
+000000r 1               SEGMPT   =       $01
+000000r 1               STATPT   =       $02
+000000r 1               STATST   =       $03
+000000r 1               LoopCo   =       $04
+000000r 1               REPEST   =       $05
+000000r 1               ONOFST   =       $06
+000000r 1               OFFPTR   =       $07
+000000r 1               MESPT1   =       $08
+000000r 1               MESPT2   =       $09
+000000r 1               MESPT3   =       $0a
+000000r 1               MESPT4   =       $0b
+000000r 1               PLAYST   =       $0e
+000000r 1               TEMPPL   =       $0f
+000000r 1               SEGST4   =       $13
+000000r 1               SEGST6   =       $15
+000000r 1               SAD      =       $1740
+000000r 1               SBD      =       $1742
+000000r 1               KEYIN    =       $1f40
+000000r 1               GETKEY   =       $1f6a
+000000r 1               
+000000r 1                        .org    $0030
+000030  1               
+000030  1               
+000030  1  20 40 1F     inkey:   jsr     KEYIN
+000033  1  20 6A 1F              jsr     GETKEY
+000036  1  85 21                 sta     $21
+000038  1  C9 15                 cmp     #$15
+00003A  1  F0 09                 beq     torts
+00003C  1  20 6A 1F     inkeyc:  jsr     GETKEY
+00003F  1  C5 21                 cmp     $21
+000041  1  F0 F9                 beq     inkeyc
+000043  1  A5 21                 lda     $21
+000045  1  60           torts:   rts
+000046  1               
+000046  1  A2 0B        istate:  ldx     #$0b
+000048  1  95 15        fstate:  sta     SEGST6,x
+00004A  1  CA                    dex
+00004B  1  D0 FB                 bne     fstate
+00004D  1  60                    rts
+00004E  1               
+00004E  1  20 65 00     mescon:  jsr     pause
+000051  1  20 A0 03              jsr     messho
+000054  1  A5 04        loopc:   lda     LoopCo
+000056  1  F0 08                 beq     repeat
+000058  1  A6 01                 ldx     SEGMPT
+00005A  1  20 6D 03              jsr     digsta
+00005D  1  4C 54 00              jmp     loopc
+000060  1               
+000060  1  C6 05        repeat:  dec     REPEST
+000062  1  D0 EA                 bne     mescon
+000064  1  60                    rts
+000065  1               
+000065  1  A2 80        pause:   ldx     #$80
+000067  1  A0 FF        aa:      ldy     #$ff
+000069  1  88           aaa:     dey
+00006A  1  D0 FD                 bne     aaa
+00006C  1  CA                    dex
+00006D  1  D0 F8                 bne     aa
+00006F  1  60                    rts
+000070  1               
+000070  1  A4 02        toshow:  ldy     STATPT
+000072  1  A6 01                 ldx     SEGMPT
+000074  1  20 57 03              jsr     fill
+000077  1  A6 01        segsta:  ldx     SEGMPT
+000079  1  20 63 03              jsr     show
+00007C  1  60                    rts
+00007D  1               
+00007D  1  00                    .byte   $00
+00007E  1  00                    .byte   $00
+00007F  1  00                    .byte   $00
+000080  1               
+000080  1  A9 0F        rstart:  lda     #$0f
+000082  1  85 01                 sta     SEGMPT
+000084  1  A9 1A                 lda     #$1a
+000086  1  85 03                 sta     STATST
+000088  1  A9 F9                 lda     #$f9
+00008A  1  85 07                 sta     OFFPTR
+00008C  1  A9 E1                 lda     #$e1
+00008E  1  85 08                 sta     MESPT1
+000090  1  A9 E7                 lda     #$e7
+000092  1  85 09                 sta     MESPT2
+000094  1  A9 ED                 lda     #$ed
+000096  1  85 0A                 sta     MESPT3
+000098  1  A9 F3                 lda     #$f3
+00009A  1  85 0B                 sta     MESPT4
+00009C  1  A9 80                 lda     #$80
+00009E  1  20 46 00              jsr     istate
+0000A1  1  A9 81                 lda     #$81
+0000A3  1  85 1B                 sta     $1b
+0000A5  1  A9 0A                 lda     #$0a
+0000A7  1  85 05                 sta     REPEST
+0000A9  1  60                    rts
+0000AA  1               
+0000AA  1               ;start
+0000AA  1                        .org 	 $0200
+000200  1               
+000200  1  20 80 00     start:   jsr     rstart
+000203  1  EA                    nop
+000204  1  EA                    nop
+000205  1  EA                    nop
+000206  1  A5 08        playab:  lda     MESPT1
+000208  1  85 02                 sta     STATPT
+00020A  1  20 A4 03              jsr     meshoc
+00020D  1  20 30 00     anykey:  jsr     inkey
+000210  1  C9 15                 cmp     #$15
+000212  1  D0 12                 bne     keyA
+000214  1  A5 04        contin:  lda     LoopCo
+000216  1  F0 08                 beq     back
+000218  1  A6 01                 ldx     SEGMPT
+00021A  1  20 6D 03              jsr     digsta
+00021D  1  4C 0D 02              jmp     anykey
+000220  1               
+000220  1  20 77 00     back:    jsr     segsta
+000223  1  4C 0D 02              jmp     anykey
+000226  1               
+000226  1  C9 0A        keyA:    cmp     #$0a
+000228  1  D0 05                 bne     keyB
+00022A  1  85 0E                 sta     PLAYST
+00022C  1  4C 35 02              jmp     oncont
+00022F  1               
+00022F  1  C9 0B        keyB:    cmp     #$0b
+000231  1  D0 E1                 bne     contin
+000233  1  85 0E                 sta     PLAYST
+000235  1  A5 03        oncont:  lda     STATST
+000237  1  C9 14                 cmp     #$14
+000239  1  D0 02                 bne     done
+00023B  1  A9 1A                 lda     #$1a
+00023D  1  85 03        done:    sta     STATST
+00023F  1  85 02                 sta     STATPT
+000241  1  A9 01                 lda     #$01
+000243  1  85 06                 sta     ONOFST
+000245  1  20 70 00              jsr     toshow
+000248  1  20 30 00     key:     jsr     inkey
+00024B  1  C9 15                 cmp     #$15
+00024D  1  D0 24                 bne     gokey
+00024F  1  A5 04                 lda     LoopCo
+000251  1  F0 08                 beq     OnOff
+000253  1  A6 01                 ldx     SEGMPT
+000255  1  20 6D 03              jsr     digsta
+000258  1  4C 48 02              jmp     key
+00025B  1               
+00025B  1  A5 06        OnOff:   lda     ONOFST
+00025D  1  F0 D6                 beq     oncont
+00025F  1  A5 02                 lda     STATPT
+000261  1  85 03                 sta     STATST
+000263  1  C6 03                 dec     STATST
+000265  1  A5 07                 lda     OFFPTR
+000267  1  85 02                 sta     STATPT
+000269  1  A9 00                 lda     #$00
+00026B  1  85 06                 sta     ONOFST
+00026D  1  20 A4 03              jsr     meshoc
+000270  1  4C 48 02              jmp     key
+000273  1               
+000273  1  C9 13        gokey:   cmp     #$13
+000275  1  D0 03                 bne     key3
+000277  1  4C 00 02              jmp     start
+00027A  1               
+00027A  1  C9 03        key3:    cmp     #$03
+00027C  1  D0 1A                 bne     Foul
+00027E  1  A5 13                 lda     SEGST4
+000280  1  D0 43                 bne     hit
+000282  1  A5 0E        miss:    lda     PLAYST
+000284  1  85 0F                 sta     TEMPPL
+000286  1  C9 0A                 cmp     #$0a
+000288  1  D0 04                 bne     missC
+00028A  1  A9 0B                 lda     #$0b
+00028C  1  85 0F                 sta     TEMPPL
+00028E  1  A4 03        missC:   ldy     STATST
+000290  1  A6 01                 ldx     SEGMPT
+000292  1  20 57 03              jsr     fill
+000295  1  4C C9 02              jmp     hitcon
+000298  1               
+000298  1  A5 09        Foul:    lda     MESPT2
+00029A  1  85 02                 sta     STATPT
+00029C  1  20 4E 00              jsr     mescon
+00029F  1  A9 0A                 lda     #$0a
+0002A1  1  85 05                 sta     REPEST
+0002A3  1  A5 0E                 lda     PLAYST
+0002A5  1  C9 0A                 cmp     #$0a
+0002A7  1  D0 08                 bne     ilcont
+0002A9  1  A9 C9                 lda     #$c9
+0002AB  1  20 46 00              jsr     istate
+0002AE  1  4C 35 02              jmp     oncont
+0002B1  1               
+0002B1  1  A9 81        ilcont:  lda     #$81
+0002B3  1  20 46 00              jsr     istate
+0002B6  1  A9 80                 lda     #$80
+0002B8  1  85 17                 sta     $17
+0002BA  1  85 19                 sta     $19
+0002BC  1  85 1B                 sta     $1b
+0002BE  1  85 1D                 sta     $1d
+0002C0  1  85 1F                 sta     $1f
+0002C2  1  4C 35 02              jmp     oncont
+0002C5  1               
+0002C5  1  A5 0E        hit:     lda     PLAYST
+0002C7  1  85 0F                 sta     TEMPPL
+0002C9  1  A5 0F        hitcon:  lda     TEMPPL
+0002CB  1  C9 0A                 cmp     #$0a
+0002CD  1  D0 36                 bne     B3segs
+0002CF  1  A5 13                 lda     SEGST4
+0002D1  1  C9 80                 cmp     #$80
+0002D3  1  F0 10                 beq     make1S
+0002D5  1  C9 81                 cmp     #$81
+0002D7  1  D0 08                 bne     A2segs
+0002D9  1  A0 80                 ldy     #$80
+0002DB  1  20 B7 03              jsr     statch
+0002DE  1  4C F5 02              jmp     allBla
+0002E1  1               
+0002E1  1  C9 C1        A2segs:  cmp     #$c1
+0002E3  1  D0 08                 bne     A3segs
+0002E5  1  A0 81        make1S:  ldy     #$81
+0002E7  1  20 B7 03              jsr     statch
+0002EA  1  4C 35 02              jmp     oncont
+0002ED  1               
+0002ED  1  A0 C1        A3segs:  ldy     #$c1
+0002EF  1  20 B7 03              jsr     statch
+0002F2  1  4C 35 02              jmp     oncont
+0002F5  1               
+0002F5  1  A2 15        allBla:  ldx     #$15
+0002F7  1  E8           loopA:   inx
+0002F8  1  E0 21                 cpx     #$21
+0002FA  1  F0 45                 beq     win
+0002FC  1  B5 00                 lda     DIGITPT,x
+0002FE  1  C9 80                 cmp     #$80
+000300  1  F0 F5        L0300:   beq     loopA
+000302  1  4C 35 02              jmp     oncont
+000305  1               
+000305  1  A5 13        B3segs:  lda     SEGST4
+000307  1  C9 C9                 cmp     #$c9
+000309  1  F0 40                 beq     lose
+00030B  1  C9 C1                 cmp     #$c1
+00030D  1  D0 0E                 bne     B1segs
+00030F  1  A0 C9                 ldy     #$c9
+000311  1  20 B7 03              jsr     statch
+000314  1  A5 0E                 lda     PLAYST
+000316  1  C9 0A                 cmp     #$0a
+000318  1  D0 17                 bne     All2S
+00031A  1  4C 35 02              jmp     oncont
+00031D  1               
+00031D  1  C9 81        B1segs:  cmp     #$81
+00031F  1  D0 08                 bne     B0segs
+000321  1  A0 C1                 ldy     #$c1
+000323  1  20 B7 03              jsr     statch
+000326  1  4C 35 02              jmp     oncont
+000329  1               
+000329  1  A0 81        B0segs:  ldy     #$81
+00032B  1  20 B7 03              jsr     statch
+00032E  1  4C 35 02              jmp     oncont
+000331  1               
+000331  1  A2 15        All2S:   ldx     #$15
+000333  1  E8           loopB:   inx
+000334  1  E0 21                 cpx     #$21
+000336  1  F0 09                 beq     win
+000338  1  B5 00                 lda     DIGITPT,x
+00033A  1  C9 C9                 cmp     #$c9
+00033C  1  F0 F5                 beq     loopB
+00033E  1  4C 35 02              jmp     oncont
+000341  1               
+000341  1  A5 0A        win:     lda     MESPT3
+000343  1  85 02                 sta     STATPT
+000345  1  20 4E 00              jsr     mescon
+000348  1  4C 00 02              jmp     start
+00034B  1               
+00034B  1  A5 0B        lose:    lda     MESPT4
+00034D  1  85 02                 sta     STATPT
+00034F  1  20 4E 00              jsr     mescon
+000352  1  4C 00 02              jmp     start
+000355  1               
+000355  1  00                    .byte   $00
+000356  1  00                    .byte   $00
+000357  1               
+000357  1  C8           fill:    iny
+000358  1  B9 00 00              lda     DIGITPT,y
+00035B  1  E8                    inx
+00035C  1  95 00                 sta     DIGITPT,x
+00035E  1  E0 15                 cpx     #$15
+000360  1  D0 F5                 bne     fill
+000362  1  60                    rts
+000363  1               
+000363  1  A9 30        show:    lda     #$30
+000365  1  85 04                 sta     LoopCo
+000367  1  A5 06                 lda     ONOFST
+000369  1  D0 02                 bne     digsta
+00036B  1  46 04                 lsr     LoopCo
+00036D  1  A9 07        digsta:  lda     #$07
+00036F  1  85 00                 sta     DIGITPT
+000371  1  E6 00        digcon:  inc     DIGITPT
+000373  1  E6 00                 inc     DIGITPT
+000375  1  A5 00                 lda     DIGITPT
+000377  1  C9 15                 cmp     #$15
+000379  1  F0 1D                 beq     loopCn
+00037B  1  A9 7F        LiteUp:  lda     #$7f
+00037D  1  8D 41 17              sta     SBD-1
+000380  1  A5 00                 lda     DIGITPT
+000382  1  8D 42 17              sta     SBD
+000385  1  E8                    inx
+000386  1  B5 00                 lda     DIGITPT,x
+000388  1  8D 40 17              sta     SAD
+00038B  1  A0 30                 ldy     #$30
+00038D  1  88           wait:    dey
+00038E  1  D0 FD                 bne     wait
+000390  1  A9 00                 lda     #$00
+000392  1  8D 40 17              sta     SAD
+000395  1  4C 71 03              jmp     digcon
+000398  1               
+000398  1  A9 00        loopCn:  lda     #$00
+00039A  1  8D 42 17              sta     SBD
+00039D  1  C6 04                 dec     LoopCo
+00039F  1  60                    rts
+0003A0  1               
+0003A0  1  A9 01        messho:  lda     #$01
+0003A2  1  85 06                 sta     ONOFST
+0003A4  1  A4 02        meshoc:  ldy     STATPT
+0003A6  1  A6 01                 ldx     SEGMPT
+0003A8  1  C8           mesfil:  iny
+0003A9  1  B9 00 03              lda     L0300,y
+0003AC  1  E8                    inx
+0003AD  1  95 00                 sta     DIGITPT,x
+0003AF  1  E0 15                 cpx     #$15
+0003B1  1  D0 F5                 bne     mesfil
+0003B3  1  20 77 00              jsr     segsta
+0003B6  1  60                    rts
+0003B7  1               
+0003B7  1  A6 03        statch:  ldx     STATST
+0003B9  1  E8                    inx
+0003BA  1  E8                    inx
+0003BB  1  E8                    inx
+0003BC  1  E8                    inx
+0003BD  1  EA                    nop
+0003BE  1  94 00                 sty     DIGITPT,x
+0003C0  1  E0 1E                 cpx     #$1e
+0003C2  1  F0 15                 beq     todec
+0003C4  1  E0 1D                 cpx     #$1d
+0003C6  1  F0 11                 beq     todec
+0003C8  1  E0 1C                 cpx     #$1c
+0003CA  1  F0 0D                 beq     todec
+0003CC  1  E0 1B                 cpx     #$1b
+0003CE  1  F0 11                 beq     end
+0003D0  1  E8                    inx
+0003D1  1  E8                    inx
+0003D2  1  E8                    inx
+0003D3  1  E8                    inx
+0003D4  1  E8                    inx
+0003D5  1  E8                    inx
+0003D6  1  94 00                 sty     DIGITPT,x
+0003D8  1  60           return:  rts
+0003D9  1               
+0003D9  1  CA           todec:   dex
+0003DA  1  CA                    dex
+0003DB  1  CA                    dex
+0003DC  1  CA                    dex
+0003DD  1  CA                    dex
+0003DE  1  CA                    dex
+0003DF  1  94 00                 sty     DIGITPT,x
+0003E1  1  60           end:     rts
+0003E2  1               
+0003E2  1  F7                    .byte   $f7
+0003E3  1  80                    .byte   $80
+0003E4  1  BF                    .byte   $bf
+0003E5  1  D0                    .byte   $d0
+0003E6  1  80                    .byte   $80
+0003E7  1  FC                    .byte   $fc
+0003E8  1  F1                    .byte   $f1
+0003E9  1  BF                    .byte   $bf
+0003EA  1  BE                    .byte   $be
+0003EB  1  B8                    .byte   $b8
+0003EC  1  80                    .byte   $80
+0003ED  1  80                    .byte   $80
+0003EE  1  F6                    .byte   $f6
+0003EF  1  BE                    .byte   $be
+0003F0  1  D0                    .byte   $d0
+0003F1  1  D0                    .byte   $d0
+0003F2  1  F7                    .byte   $f7
+0003F3  1  EE                    .byte   $ee
+0003F4  1  FC                    .byte   $fc
+0003F5  1  BE                    .byte   $be
+0003F6  1  ED                    .byte   $ed
+0003F7  1  F8                    .byte   $f8
+0003F8  1  F9                    .byte   $f9
+0003F9  1  DE                    .byte   $de
+0003FA  1  00                    .byte   $00
+0003FB  1  00                    .byte   $00
+0003FC  1  00                    .byte   $00
+0003FD  1  00                    .byte   $00
+0003FE  1  00                    .byte   $00
+0003FF  1  00                    .byte   $00
+0003FF  1               
