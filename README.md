@@ -1,5 +1,7 @@
 # Target-6
 
+![t-6](https://github.com/netzherpes/Target-6/raw/main/images/target%236.jpg)
+
 The 6 column Version of Fer Webers Target1 Shooter Game (https://github.com/netzherpes/Target1-for-KIM-1)
 
 Author <br>
