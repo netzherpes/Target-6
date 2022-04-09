@@ -28,36 +28,57 @@
 ;*      |1|2|3|4| |5|6|                *
 ;*             ^                       *
 ;***************************************
-         
-         .org    $0030
- 
+      
+DIGITPT  =       $00
+SEGMPT   =       $01
+STATPT   =       $02
+STATST   =       $03
+LoopCo   =       $04
+REPEST   =       $05
+ONOFST   =       $06
+OFFPTR   =       $07
+MESPT1   =       $08
+MESPT2   =       $09
+MESPT3   =       $0a
+MESPT4   =       $0b
+PLAYST   =       $0e
+TEMPPL   =       $0f
+SEGST4   =       $13
+SEGST6   =       $15
+SAD      =       $1740
+SBD      =       $1742
+KEYIN    =       $1f40
+GETKEY   =       $1f6a
 
-inkey:   jsr     $1f40
-         jsr     $1f6a
+         .org    $0030
+        
+
+inkey:   jsr     KEYIN
+         jsr     GETKEY
          sta     $21
          cmp     #$15
          beq     torts
-inkeyc:  jsr     $1f6a
+inkeyc:  jsr     GETKEY
          cmp     $21
          beq     inkeyc
          lda     $21
 torts:   rts
 
 istate:  ldx     #$0b
-fstate:  sta     $15,x
+fstate:  sta     SEGST6,x
          dex
          bne     fstate
          rts
 
 mescon:  jsr     pause
          jsr     messho
-loopc:   lda     $04
+loopc:   lda     LoopCo
          beq     repeat
-         ldx     $01
+         ldx     SEGMPT
          jsr     digsta
          jmp     loopc
 
-repeat:  dec     $05
+repeat:  dec     REPEST
          bne     mescon
          rts
 
@@ -69,10 +90,10 @@ aaa:     dey
          bne     aa
          rts
 
-toshow:  ldy     $02
-         ldx     $01
+toshow:  ldy     STATPT
+         ldx     SEGMPT
          jsr     fill
-segsta:  ldx     $01
+segsta:  ldx     SEGMPT
          jsr     show
          rts
 
@@ -81,44 +102,43 @@ segsta:  ldx     $01
          .byte   $00
 
 rstart:  lda     #$0f
-         sta     $01
+         sta     SEGMPT
          lda     #$1a
-         sta     $03
+         sta     STATST
          lda     #$f9
-         sta     $07
+         sta     OFFPTR
          lda     #$e1
-         sta     $08
+         sta     MESPT1
          lda     #$e7
-         sta     $09
+         sta     MESPT2
          lda     #$ed
-         sta     $0a
+         sta     MESPT3
          lda     #$f3
-         sta     $0b
+         sta     MESPT4
          lda     #$80
          jsr     istate
          lda     #$81
          sta     $1b
          lda     #$0a
-         sta     $05
+         sta     REPEST
          rts
 
- 
-; Start of the program
-         .org     $0200 
+;start
+         .org 	 $0200 
 
 start:   jsr     rstart
          nop
          nop
          nop
-playab:  lda     $08
-         sta     $02
+playab:  lda     MESPT1
+         sta     STATPT
          jsr     meshoc
 anykey:  jsr     inkey
          cmp     #$15
          bne     keyA
-contin:  lda     $04
+contin:  lda     LoopCo
          beq     back
-         ldx     $01
+         ldx     SEGMPT
          jsr     digsta
          jmp     anykey
 
@@ -127,39 +147,39 @@ back:    jsr     segsta
 
 keyA:    cmp     #$0a
          bne     keyB
-         sta     $0e
+         sta     PLAYST
          jmp     oncont
 
 keyB:    cmp     #$0b
          bne     contin
-         sta     $0e
-oncont:  lda     $03
+         sta     PLAYST
+oncont:  lda     STATST
          cmp     #$14
          bne     done
          lda     #$1a
-done:    sta     $03
-         sta     $02
+done:    sta     STATST
+         sta     STATPT
          lda     #$01
-         sta     $06
+         sta     ONOFST
          jsr     toshow
 key:     jsr     inkey
          cmp     #$15
          bne     gokey
-         lda     $04
+         lda     LoopCo
          beq     OnOff
-         ldx     $01
+         ldx     SEGMPT
          jsr     digsta
          jmp     key
 
-OnOff:   lda     $06
+OnOff:   lda     ONOFST
          beq     oncont
-         lda     $02
-         sta     $03
-         dec     $03
-         lda     $07
-         sta     $02
+         lda     STATPT
+         sta     STATST
+         dec     STATST
+         lda     OFFPTR
+         sta     STATPT
          lda     #$00
-         sta     $06
+         sta     ONOFST
          jsr     meshoc
          jmp     key
 
@@ -169,25 +189,25 @@ gokey:   cmp     #$13
 
 key3:    cmp     #$03
          bne     Foul
-         lda     $13
+         lda     SEGST4
          bne     hit
-miss:    lda     $0e
-         sta     $0f
+miss:    lda     PLAYST
+         sta     TEMPPL
          cmp     #$0a
          bne     missC
          lda     #$0b
-         sta     $0f
-missC:   ldy     $03
-         ldx     $01
+         sta     TEMPPL
+missC:   ldy     STATST
+         ldx     SEGMPT
          jsr     fill
          jmp     hitcon
 
-Foul:    lda     $09
-         sta     $02
+Foul:    lda     MESPT2
+         sta     STATPT
          jsr     mescon
          lda     #$0a
-         sta     $05
-         lda     $0e
+         sta     REPEST
+         lda     PLAYST
          cmp     #$0a
          bne     ilcont
          lda     #$c9
@@ -204,12 +224,12 @@ ilcont:  lda     #$81
          sta     $1f
          jmp     oncont
 
-hit:     lda     $0e
-         sta     $0f
-hitcon:  lda     $0f
+hit:     lda     PLAYST
+         sta     TEMPPL
+hitcon:  lda     TEMPPL
          cmp     #$0a
          bne     B3segs
-         lda     $13
+         lda     SEGST4
          cmp     #$80
          beq     make1S
          cmp     #$81
@@ -232,19 +252,19 @@ allBla:  ldx     #$15
 loopA:   inx
          cpx     #$21
          beq     win
-         lda     $00,x
+         lda     DIGITPT,x
          cmp     #$80
 L0300:   beq     loopA
          jmp     oncont
 
-B3segs:  lda     $13
+B3segs:  lda     SEGST4
          cmp     #$c9
          beq     lose
          cmp     #$c1
          bne     B1segs
          ldy     #$c9
          jsr     statch
-         lda     $0e
+         lda     PLAYST
          cmp     #$0a
          bne     All2S
          jmp     oncont
@@ -263,18 +283,18 @@ All2S:   ldx     #$15
 loopB:   inx
          cpx     #$21
          beq     win
-         lda     $00,x
+         lda     DIGITPT,x
          cmp     #$c9
          beq     loopB
          jmp     oncont
 
-win:     lda     $0a
-         sta     $02
+win:     lda     MESPT3
+         sta     STATPT
          jsr     mescon
          jmp     start
 
-lose:    lda     $0b
-         sta     $02
+lose:    lda     MESPT4
+         sta     STATPT
          jsr     mescon
          jmp     start
 
@@ -282,64 +302,64 @@ lose:    lda     $0b
          .byte   $00
 
 fill:    iny
-         lda     $0000,y
+         lda     DIGITPT,y
          inx
-         sta     $00,x
+         sta     DIGITPT,x
          cpx     #$15
          bne     fill
          rts
 
 show:    lda     #$30
-         sta     $04
-         lda     $06
+         sta     LoopCo
+         lda     ONOFST
          bne     digsta
-         lsr     $04
+         lsr     LoopCo
 digsta:  lda     #$07
-         sta     $00
-digcon:  inc     $00
-         inc     $00
-         lda     $00
+         sta     DIGITPT
+digcon:  inc     DIGITPT
+         inc     DIGITPT
+         lda     DIGITPT
          cmp     #$15
          beq     loopCn
 LiteUp:  lda     #$7f
-         sta     $1741
-         lda     $00
-         sta     $1742
+         sta     SBD-1
+         lda     DIGITPT
+         sta     SBD
          inx
-         lda     $00,x
-         sta     $1740
+         lda     DIGITPT,x
+         sta     SAD
          ldy     #$30
 wait:    dey
          bne     wait
          lda     #$00
-         sta     $1740
+         sta     SAD
          jmp     digcon
 
 loopCn:  lda     #$00
-         sta     $1742
-         dec     $04
+         sta     SBD
+         dec     LoopCo
          rts
 
 messho:  lda     #$01
-         sta     $06
-meshoc:  ldy     $02
-         ldx     $01
+         sta     ONOFST
+meshoc:  ldy     STATPT
+         ldx     SEGMPT
 mesfil:  iny
          lda     L0300,y
          inx
-         sta     $00,x
+         sta     DIGITPT,x
          cpx     #$15
          bne     mesfil
          jsr     segsta
          rts
 
-statch:  ldx     $03
+statch:  ldx     STATST
          inx
          inx
          inx
          inx
          nop
-         sty     $00,x
+         sty     DIGITPT,x
          cpx     #$1e
          beq     todec
          cpx     #$1d
@@ -354,7 +374,7 @@ statch:  ldx     $03
          inx
          inx
          inx
-         sty     $00,x
+         sty     DIGITPT,x
 return:  rts
 
 todec:   dex
@@ -363,7 +383,7 @@ todec:   dex
          dex
          dex
          dex
-         sty     $00,x
+         sty     DIGITPT,x
 end:     rts
 
          .byte   $f7
